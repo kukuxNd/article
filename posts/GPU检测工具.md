@@ -53,22 +53,25 @@ Category: 图形渲染
 ---
 
 ## 参考链接
+---
 
 1. Snapdragon Profiler | Qualcomm Developer  
-   https://www.qualcomm.com/developer/software/snapdragon-profiler  
+   <https://www.qualcomm.com/developer/software/snapdragon-profiler>  
 2. Introduction to Arm Mobile Studio – Mali Graphics Debugger | Arm Developer  
-   https://developer.arm.com/documentation/101469/2021-0/Introduction-to-Arm-Development-Studio/Mali-Graphics-Debugger  
+   <https://developer.arm.com/documentation/101469/2021-0/Introduction-to-Arm-Development-Studio/Mali-Graphics-Debugger>  
 3. Huawei Graphics Profiler | Huawei Developer  
-   https://developer.huawei.com/consumer/cn/huawei-graphics-profiler/  
+   <https://developer.huawei.com/consumer/cn/huawei-graphics-profiler/>  
 4. Shader Viewer — RenderDoc documentation  
-   https://renderdoc.org/docs/window/shader_viewer.html  
+   <https://renderdoc.org/docs/window/shader_viewer.html>  
 5. NVIDIA Nsight Graphics | NVIDIA Developer  
-   https://developer.nvidia.com/nsight-graphics  
+   <https://developer.nvidia.com/nsight-graphics>  
 6. Radeon™ GPU Profiler – AMD GPUOpen  
-   https://gpuopen.com/rgp/  
+   <https://gpuopen.com/rgp/>  
 7. Intel® Graphics Performance Analyzers (GPA) | Intel  
-   https://www.intel.cn/content/www/cn/zh/developer/tools/graphics-performance-analyzers/overview.html  
+   <https://www.intel.cn/content/www/cn/zh/developer/tools/graphics-performance-analyzers/overview.html>  
 8. 使用 GPU 捕获分析帧 – Win32 apps | Microsoft Learn  
-   https://learn.microsoft.com/zh-cn/windows/win32/direct3dtools/pix/pix-gpu-captures  
+   <https://learn.microsoft.com/zh-cn/windows/win32/direct3dtools/pix/pix-gpu-captures>  
 9. Capturing a Metal workload in Xcode | Apple Developer  
-   https://developer.apple.com/documentation/xcode/capturing-a-metal-workload-in-xcode  
+   <https://developer.apple.com/documentation/xcode/capturing-a-metal-workload-in-xcode>  
+
+---
