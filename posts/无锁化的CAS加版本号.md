@@ -1,5 +1,5 @@
 Title: 无锁化的原子操作CAS加版本号示例
-Date: 2025-04-18
+Date: 2018-05-18
 Category: C&C++
 
 # 无锁化的 CAS 加版本号示例
