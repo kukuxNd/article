@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}分类：{{ current }}{% endblock %}
+
+{% block content %}
+  <h2>{{ current }} 分类下的文章</h2>
+  <ul class="post-list">
+    {% for p in posts %}
+      <li>
+        <a href="/post/{{ p.path }}/">{{ p.meta.Title }}</a>
+        <small>（{{ p.meta.Date }}）</small>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
