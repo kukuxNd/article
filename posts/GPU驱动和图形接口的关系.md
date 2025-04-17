@@ -69,6 +69,69 @@ int main() {
 3. **创建逻辑设备**: 应用程序通过逻辑设备与GPU交互。
 4. **执行命令**: 应用程序通过命令缓冲区向GPU提交渲染任务。
 
+## OpenGL 示例代码
+
+以下是一个使用OpenGL的简单代码示例，展示应用程序如何与GPU交互：
+
+```cpp
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+
+int main() {
+    // 初始化GLFW
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW!" << std::endl;
+        return -1;
+    }
+
+    // 创建窗口
+    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Example", nullptr, nullptr);
+    if (!window) {
+        std::cerr << "Failed to create GLFW window!" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+
+    // 初始化GLEW
+    if (glewInit() != GLEW_OK) {
+        std::cerr << "Failed to initialize GLEW!" << std::endl;
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return -1;
+    }
+
+    // 设置清屏颜色
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
+    // 渲染循环
+    while (!glfwWindowShouldClose(window)) {
+        // 清屏
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // 交换缓冲区
+        glfwSwapBuffers(window);
+
+        // 处理事件
+        glfwPollEvents();
+    }
+
+    // 清理资源
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
+    return 0;
+}
+```
+
+## 调用流程
+
+1. **初始化GLFW和GLEW**: 应用程序初始化OpenGL上下文和扩展。
+2. **创建窗口**: 创建一个窗口以显示渲染内容。
+3. **设置清屏颜色**: 配置OpenGL的背景颜色。
+4. **渲染循环**: 持续清屏并更新窗口内容。
+5. **清理资源**: 释放窗口和上下文资源。
 ## 总结
 
 通过图形API，应用程序可以高效地与GPU硬件交互，而驱动程序在其中扮演了翻译和管理的角色。
