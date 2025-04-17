@@ -135,3 +135,72 @@ int main() {
 ## 总结
 
 通过图形API，应用程序可以高效地与GPU硬件交互，而驱动程序在其中扮演了翻译和管理的角色。
+
+## 性能要点
+
+在使用图形API与GPU交互时，性能优化是关键。以下是一些性能要点：
+
+1. **减少API调用开销**: 尽量批量提交绘图命令，减少驱动程序的调用频率。
+2. **使用命令缓冲区**: 在Vulkan中，预先录制命令缓冲区以减少运行时开销。
+3. **资源管理**: 合理管理纹理、缓冲区等资源，避免频繁创建和销毁。
+4. **异步操作**: 利用多线程和异步操作充分利用GPU和CPU资源。
+5. **剔除不可见对象**: 在应用程序层剔除不可见的几何体，减少渲染负担。
+
+以下是一个性能优化的代码示例，展示如何在Vulkan中使用命令缓冲区：
+
+```cpp
+#include <vulkan/vulkan.h>
+#include <iostream>
+
+void recordCommandBuffer(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer framebuffer) {
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+        std::cerr << "Failed to begin recording command buffer!" << std::endl;
+        return;
+    }
+
+    VkRenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = renderPass;
+    renderPassInfo.framebuffer = framebuffer;
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = {800, 600};
+
+    VkClearValue clearColor = {{{0.2f, 0.3f, 0.3f, 1.0f}}};
+    renderPassInfo.clearValueCount = 1;
+    renderPassInfo.pClearValues = &clearColor;
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    // 绘图命令
+    vkCmdEndRenderPass(commandBuffer);
+
+    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+        std::cerr << "Failed to record command buffer!" << std::endl;
+    }
+}
+
+int main() {
+    // 假设Vulkan实例、设备、命令缓冲区等已初始化
+    VkCommandBuffer commandBuffer; // 已分配的命令缓冲区
+    VkRenderPass renderPass;       // 已创建的渲染通道
+    VkFramebuffer framebuffer;     // 已创建的帧缓冲区
+
+    recordCommandBuffer(commandBuffer, renderPass, framebuffer);
+
+    std::cout << "Command buffer recorded successfully!" << std::endl;
+
+    return 0;
+}
+```
+
+### 性能优化流程
+
+1. **预先录制命令缓冲区**: 在初始化阶段录制命令，避免运行时重复调用。
+2. **减少状态切换**: 合理安排绘图命令，减少GPU状态切换。
+3. **批量处理资源**: 合并小的绘图任务，减少API调用次数。
+4. **异步加载资源**: 在后台加载纹理和模型，避免阻塞主线程。
+
+通过这些优化策略，可以显著提升图形渲染的性能，充分发挥GPU的计算能力。
