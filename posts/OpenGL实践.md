@@ -1,6 +1,6 @@
 Title: OpenGL 3.3 Core Profile 实践
 Date: 2024-03-08
-Category: OpenGL
+Category: 图形渲染
 
 下面给出一个完整示例，演示如何在 OpenGL 3.3 Core Profile 中同时使用 Instancing 和 Uniform Buffer Object（UBO）。
 
