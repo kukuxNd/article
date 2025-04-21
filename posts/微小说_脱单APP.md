@@ -1,6 +1,6 @@
 Title: 脱单APP
 Date: 2023-08-07
-Category: 微型小说
+Category: 微小说
 
 ---
 
