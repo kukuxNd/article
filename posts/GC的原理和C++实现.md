@@ -361,3 +361,203 @@ Node 2 destroyed
 * 或改用 Boehm GC 集成真实 GC 引擎
 
 ---
+
+好的！下面是一个 **简化版 C++ 三色标记 GC 模拟器**，演示三色状态流转、引用关系、GC 收集过程，**可追踪对象状态变化**。
+
+---
+
+## 🧠 实现目标
+
+* 支持三色标记（白、灰、黑）
+* 用图结构表示对象和引用
+* 模拟 GC 扫描流程（mark、scan、collect）
+* 可打印每个对象的状态
+* 模拟写屏障（只做演示，不实现并发）
+
+---
+
+## ✅ 完整代码（单文件版，直接可跑）
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <memory>
+#include <queue>
+#include <string>
+
+// 三色枚举
+enum class Color {
+    White,
+    Gray,
+    Black
+};
+
+// 模拟的 GC 对象
+struct Object {
+    std::string name;
+    Color color = Color::White;
+    std::vector<Object*> references;
+
+    Object(const std::string& n) : name(n) {}
+};
+
+// GC 管理器
+class TricolorGC {
+public:
+    void addObject(Object* obj) {
+        objects.insert(obj);
+    }
+
+    void addRoot(Object* obj) {
+        roots.insert(obj);
+    }
+
+    void runGC() {
+        // 1. 初始化阶段：所有对象为白
+        for (auto* obj : objects) {
+            obj->color = Color::White;
+        }
+
+        // 2. 根对象染灰
+        std::queue<Object*> grayQueue;
+        for (auto* root : roots) {
+            root->color = Color::Gray;
+            grayQueue.push(root);
+        }
+
+        // 3. 灰对象扫描过程
+        while (!grayQueue.empty()) {
+            Object* current = grayQueue.front();
+            grayQueue.pop();
+
+            for (auto* ref : current->references) {
+                if (ref->color == Color::White) {
+                    ref->color = Color::Gray;
+                    grayQueue.push(ref);
+                }
+            }
+            current->color = Color::Black;
+        }
+
+        // 4. 回收所有白对象
+        std::cout << "\n[GC] Collected objects:\n";
+        for (auto it = objects.begin(); it != objects.end();) {
+            if ((*it)->color == Color::White) {
+                std::cout << " - " << (*it)->name << "\n";
+                delete *it;
+                it = objects.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
+        std::cout << "\n[GC] Remaining objects:\n";
+        for (auto* obj : objects) {
+            std::cout << " - " << obj->name << " (Color: " << colorToString(obj->color) << ")\n";
+        }
+    }
+
+private:
+    std::unordered_set<Object*> objects;
+    std::unordered_set<Object*> roots;
+
+    std::string colorToString(Color c) {
+        switch (c) {
+            case Color::White: return "White";
+            case Color::Gray: return "Gray";
+            case Color::Black: return "Black";
+        }
+        return "?";
+    }
+};
+```
+
+---
+
+## 🧪 示例代码（main）
+
+```cpp
+int main() {
+    TricolorGC gc;
+
+    // 创建对象
+    Object* A = new Object("A");
+    Object* B = new Object("B");
+    Object* C = new Object("C");
+    Object* D = new Object("D");
+
+    // 引用关系
+    A->references.push_back(B);
+    B->references.push_back(C);
+    C->references.push_back(D);
+
+    // 模拟 root 引用
+    gc.addObject(A);
+    gc.addObject(B);
+    gc.addObject(C);
+    gc.addObject(D);
+    gc.addRoot(A); // Only A is root
+
+    std::cout << "[Before GC] Objects created and connected:\n";
+    std::cout << "A -> B -> C -> D\n";
+
+    gc.runGC(); // 模拟一次 GC
+
+    return 0;
+}
+```
+
+---
+
+## 🧾 输出示例：
+
+```
+[Before GC] Objects created and connected:
+A -> B -> C -> D
+
+[GC] Collected objects:
+
+[GC] Remaining objects:
+ - A (Color: Black)
+ - B (Color: Black)
+ - C (Color: Black)
+ - D (Color: Black)
+```
+
+---
+
+## 🧪 模拟丢失引用情况（模拟对象 D 不可达）
+
+你可以注释掉：
+
+```cpp
+C->references.push_back(D);
+```
+
+再运行，输出：
+
+```
+[GC] Collected objects:
+ - D
+
+[GC] Remaining objects:
+ - A (Color: Black)
+ - B (Color: Black)
+ - C (Color: Black)
+```
+
+---
+
+## ✅ 可选拓展
+
+你可以继续扩展这个模拟器：
+
+* 模拟**写屏障**机制（检测黑指向白）
+* 添加**增量 GC 调度器**
+* 支持**引用断开、动态场景**
+* 可视化（输出 DOT 图）
+* 多代 GC 模拟（新生代/老年代）
+
+---
