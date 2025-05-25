@@ -722,7 +722,97 @@ public class DemoBigList : MonoBehaviour
 ✅ 超大ScrollView跑起来，流畅滚动，上万条Item轻松撑住。
 
 ---
+# 重叠的控件 如何切割贴图 
+- 顶底重制
+- UV 重订
+    - 比如：有这样一个控件：
+        尺寸：100x100
 
+        使用的是图集中的一块区域 UV：(0.1, 0.1) ~ (0.2, 0.2)
+
+        现在：
+
+        它左边超出了一个 Mask 区域（只允许右边 50x100 显示）
+        🧩 实际做法：用顶点裁剪 + UV重映射
+1. 裁掉左边一半的顶点
+原来的四个顶点是：
+
+scss
+复制
+编辑
+A(0,0)   B(100,0)
+D(0,100) C(100,100)
+裁掉左边一半后：
+
+vbnet
+复制
+编辑
+A'(50,0)   B(100,0)
+D'(50,100) C(100,100)
+2. UV重映射到对应范围
+原来的 UV 是：
+
+scss
+复制
+编辑
+(0.1,0.1) → (0.2,0.1)
+(0.1,0.2) → (0.2,0.2)
+新的 A' 的 x 从 50% 开始，所以：
+
+vbnet
+复制
+编辑
+A' uv = lerp(0.1, 0.2, 0.5) = 0.15
+所以新四个UV：
+
+scss
+复制
+编辑
+(0.15, 0.1) → (0.2, 0.1)
+(0.15, 0.2) → (0.2, 0.2)
+这样绘制出来的，就是右半区域的贴图裁剪渲染！
+
+🔧 你可以这么写个裁剪函数（伪代码）
+csharp
+复制
+编辑
+void AddClippedQuad(Vector3[] quad, Vector2[] uv, Rect clipRect, UIMeshBatcher batcher)
+{
+    Rect quadRect = new Rect(quad[0].x, quad[0].y, quad[1].x - quad[0].x, quad[3].y - quad[0].y);
+    Rect intersect = Rect.Intersection(clipRect, quadRect);
+    if (intersect.width <= 0 || intersect.height <= 0)
+        return;
+
+    float uLerp = (intersect.xMin - quadRect.xMin) / quadRect.width;
+    float vLerp = (intersect.yMin - quadRect.yMin) / quadRect.height;
+    float uWidth = intersect.width / quadRect.width;
+    float vHeight = intersect.height / quadRect.height;
+
+    Vector3[] newVerts = {
+        new Vector3(intersect.xMin, intersect.yMin),
+        new Vector3(intersect.xMax, intersect.yMin),
+        new Vector3(intersect.xMax, intersect.yMax),
+        new Vector3(intersect.xMin, intersect.yMax)
+    };
+
+    Vector2[] newUVs = {
+        Vector2.Lerp(uv[0], uv[1], uLerp),
+        Vector2.Lerp(uv[0], uv[1], uLerp + uWidth),
+        Vector2.Lerp(uv[3], uv[2], uLerp + uWidth),
+        Vector2.Lerp(uv[3], uv[2], uLerp)
+    };
+
+    batcher.AddQuad(newVerts, newUVs, Color.white);
+}
+
+💡 技术原理回顾
+步骤	原理
+1. 裁剪顶点区域	用 Mask 矩形与原区域做交集
+2. 映射新UV	根据交集比例，Lerp 贴图UV坐标
+3. 提交裁剪后 Mesh	用你自己的 UIMeshBatcher 打包提交即可
+
+✅ 这就是 FGUI、Spine、甚至 Flash 在 GPU 层面的 图块裁剪核心逻辑。
+---
 # 🎯 总结
 
 > "**自研UI系统做到极致，不仅自己管理Mesh、批量渲染，还要批量控制布局、滚动、动效，全部模块化、可复用。**"
