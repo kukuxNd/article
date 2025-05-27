@@ -1,6 +1,6 @@
 Title: GC的原理和C++实现
 Date: 2025-05-20
-Category: C&&C++
+Category: C&C++
 ---
 
 高级语言的 GC（Garbage Collection，垃圾回收）是为了解决程序中**内存自动管理**的问题，核心目标是：
